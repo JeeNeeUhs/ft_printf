@@ -6,7 +6,7 @@
 /*   By: ahekinci <ahekinci@student.42kocaeli.co    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/11/10 23:34:01 by ahekinci          #+#    #+#             */
-/*   Updated: 2024/11/11 16:01:19 by ahekinci         ###   ########.fr       */
+/*   Updated: 2024/11/12 16:40:21 by ahekinci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,37 +106,34 @@ int	ft_puthexnbr(unsigned int nb, char x)
 	return (count);
 }
 
-int ft_putptr(uintptr_t nb)
-{
-	int count;
-
-	count = 0;
-	if (count == 0)
-	{
-		write(1, "0x", 2);
-		count += 2;
-	}
-	if (nb > 15)
-		count += ft_putptr(nb / 16);
-	if (nb % 16 < 10)
-		count += ft_putnbr(nb % 16);
-	else
-		count += ft_putchar(nb % 16 - 10 + 'a');
-	return (count);
-	
-}
-
-int	putptrnbr(uintptr_t nb)
+int ft_puthexptr(unsigned long nb)
 {
 	int	count;
 
 	count = 0;
 	if (nb > 15)
-		count += putptrnbr(nb / 16);
+		count += ft_puthexptr(nb / 16);
 	if (nb % 16 < 10)
 		count += ft_putnbr(nb % 16);
 	else
-		count += ft_putchar('a' + (nb % 16 - 10));
+		count += ft_putchar(nb % 16 - 10 + 'a');
+	return (count);
+}
+
+int	ft_putptr(void *ptr)
+{
+	unsigned long	nb;
+	int				count;
+
+	if (!ptr)
+	{
+		write(1, "(nil)", 5);
+		return (5);
+	}
+	count = 0;
+	count += ft_putstr("0x");
+	nb = (unsigned long)ptr;
+	count += ft_puthexptr(nb);
 	return (count);
 }
 
@@ -172,15 +169,7 @@ int	ft_printf(const char *format, ...)
 			else if (format[i] == 'x' || format[i] == 'X')
 				count += ft_puthexnbr(va_arg(args, unsigned int), format[i]);
 			else if (format[i] == 'p')
-			{
-				if (!va_arg(args, void *))
-					count += ft_putstr("(nil)");
-				else
-				{
-					count += ft_putstr("0x");
-					count += putptrnbr((uintptr_t)va_arg(args, void *)); 
-				}
-			}
+				count += ft_putptr(va_arg(args, void *)); 
 		}
 		else
 		{
@@ -196,6 +185,9 @@ int	ft_printf(const char *format, ...)
 int main()
 {
 	char *str = "Hello, World!";
+
+	// ft_printf("%x\n", 42);
+	// printf("%x\n", 42);
 
 	printf("%p\n", str);
 	ft_printf("%p", str);
